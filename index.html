@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таймер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .timers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .timer-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .timer-number {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            min-height: 70px;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .time-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .time-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+            max-width: 70px;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-start {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #45a049;
+        }
+
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #da190b;
+        }
+
+        .btn-reset {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #0b7dda;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 15px;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #ee5a52;
+        }
+
+        .timer-finished {
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .timer-finished .timer-display {
+            color: #f44336;
+        }
+
+        .add-timer-btn {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .add-timer-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-control {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-control:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .volume-control {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .volume-value {
+            text-align: center;
+            margin-top: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+<link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dominant-baseline='middle'>⏱</text></svg>">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ Таймер</h1>
+
+        <div class="volume-control">
+            <div class="volume-label">🔊 Громкость</div>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100" oninput="updateVolume(this.value)">
+            <div class="volume-value" id="volumeValue">100%</div>
+        </div>
+
+        <button class="add-timer-btn" onclick="addTimer()">+ Добавить таймер</button>
+
+        <div class="timers-container" id="timersContainer"></div>
+
+        <div class="control-panel">
+            <button class="btn-control" onclick="startAllTimers()">Запустить все</button>
+            <button class="btn-control" onclick="stopAllTimers()">Остановить все</button>
+            <button class="btn-control" onclick="resetAllTimers()">Сбросить все</button>
+        </div>
+    </div>
+
+    <script>
+        const timers = {};
+        let timerCount = 0;
+        let globalVolume = 1;
+        let audioContext = null;
+        let audioContextInitialized = false;
+
+        // Инициализируем AudioContext при первом клике
+        document.addEventListener('click', function() {
+            if (!audioContextInitialized) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioContextInitialized = true;
+                } catch (e) {
+                    console.log('AudioContext error:', e);
+                }
+            }
+        });
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateVolume(value) {
+            globalVolume = value / 100;
+            document.getElementById('volumeValue').textContent = value + '%';
+        }
+
+        function addTimer() {
+            timerCount++;
+            const id = timerCount;
+            
+            timers[id] = {
+                duration: 0,
+                remaining: 0,
+                interval: null,
+                isRunning: false,
+                isFinished: false,
+                alarmId: null,
+                currentOscillators: []
+            };
+
+            const container = document.getElementById('timersContainer');
+            const timerHTML = `
+                <div class="timer-card" id="timer${id}">
+                    <div class="timer-number">Таймер ${id}</div>
+                    <div class="timer-display" id="display${id}">00:00:00</div>
+                    
+                    <div class="time-inputs">
+                        <div class="time-input-group">
+                            <div class="time-label">Часы</div>
+                            <input type="number" class="time-input" id="hours${id}" min="0" max="23" value="0">
+                        </div>
+                        <div class="time-input-group">
+                            <div class="time-label">Минуты</div>
+                            <input type="number" class="time-input" id="minutes${id}" min="0" max="59" value="0">
+                        </div>
+                        <div class="time-input-group">
+                            <div class="time-label">Секунды</div>
+                            <input type="number" class="time-input" id="seconds${id}" min="0" max="59" value="0">
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="btn-start" onclick="startTimer(${id})">Старт</button>
+                        <button class="btn-stop" onclick="stopTimer(${id})">Стоп</button>
+                        <button class="btn-reset" onclick="resetTimer(${id})">Сброс</button>
+                        <button class="btn-delete" onclick="deleteTimer(${id})">✕</button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML += timerHTML;
+        }
+
+        function deleteTimer(id) {
+            stopTimer(id);
+            if (timers[id].alarmId !== null) {
+                clearInterval(timers[id].alarmId);
+            }
+            delete timers[id];
+            document.getElementById(`timer${id}`).remove();
+        }
+
+        function getTimerDuration(id) {
+            const hours = parseInt(document.getElementById(`hours${id}`).value) || 0;
+            const minutes = parseInt(document.getElementById(`minutes${id}`).value) || 0;
+            const seconds = parseInt(document.getElementById(`seconds${id}`).value) || 0;
+            return hours * 3600 + minutes * 60 + seconds;
+        }
+
+        function startTimer(id) {
+            if (!timers[id] || timers[id].isRunning) return;
+
+            if (timers[id].remaining === 0) {
+                timers[id].duration = getTimerDuration(id);
+                timers[id].remaining = timers[id].duration;
+            }
+
+            if (timers[id].remaining <= 0) {
+                alert('Установите время!');
+                return;
+            }
+
+            timers[id].isRunning = true;
+            timers[id].isFinished = false;
+            document.getElementById(`hours${id}`).disabled = true;
+            document.getElementById(`minutes${id}`).disabled = true;
+            document.getElementById(`seconds${id}`).disabled = true;
+
+            timers[id].interval = setInterval(() => {
+                timers[id].remaining--;
+                document.getElementById(`display${id}`).textContent = formatTime(timers[id].remaining);
+
+                if (timers[id].remaining <= 0) {
+                    stopTimer(id);
+                    timers[id].isFinished = true;
+                    document.getElementById(`timer${id}`).classList.add('timer-finished');
+                    playAlarm(id);
+                }
+            }, 1000);
+        }
+
+        function stopTimer(id) {
+            if (!timers[id]) return;
+            if (timers[id].interval) {
+                clearInterval(timers[id].interval);
+                timers[id].interval = null;
+            }
+            timers[id].isRunning = false;
+            document.getElementById(`hours${id}`).disabled = false;
+            document.getElementById(`minutes${id}`).disabled = false;
+            document.getElementById(`seconds${id}`).disabled = false;
+        }
+
+        function resetTimer(id) {
+            if (!timers[id]) return;
+            stopTimer(id);
+            
+            if (timers[id].alarmId !== null) {
+                clearInterval(timers[id].alarmId);
+                timers[id].alarmId = null;
+            }
+            
+            stopCurrentSound(id);
+            
+            timers[id].remaining = 0;
+            timers[id].duration = 0;
+            timers[id].isFinished = false;
+            document.getElementById(`timer${id}`).classList.remove('timer-finished');
+            
+            document.getElementById(`display${id}`).textContent = '00:00:00';
+        }
+
+        function startAllTimers() {
+            for (let id in timers) {
+                if (!timers[id].isRunning) {
+                    startTimer(parseInt(id));
+                }
+            }
+        }
+
+        function stopAllTimers() {
+            for (let id in timers) {
+                stopTimer(parseInt(id));
+            }
+        }
+
+        function resetAllTimers() {
+            for (let id in timers) {
+                resetTimer(parseInt(id));
+            }
+        }
+
+        function stopCurrentSound(id) {
+            try {
+                if (timers[id] && timers[id].currentOscillators.length > 0) {
+                    timers[id].currentOscillators.forEach(osc => {
+                        try {
+                            osc.stop();
+                        } catch (e) {}
+                    });
+                    timers[id].currentOscillators = [];
+                }
+            } catch (e) {
+                console.log('Sound stop error:', e);
+            }
+        }
+
+        function playAlarm(id) {
+            try {
+                if (!timers[id]) return;
+                let isPlaying = true;
+
+                const alarmInterval = setInterval(() => {
+                    try {
+                        if (!isPlaying || !timers[id]) {
+                            clearInterval(alarmInterval);
+                            timers[id].alarmId = null;
+                            return;
+                        }
+                        playBeep(id);
+                    } catch (e) {
+                        console.log('Alarm error:', e);
+                    }
+                }, 1200);
+
+                timers[id].alarmId = alarmInterval;
+
+                setTimeout(() => {
+                    isPlaying = false;
+                }, 30000);
+            } catch (e) {
+                console.log('Play alarm error:', e);
+            }
+        }
+
+        function playBeep(id) {
+            try {
+                if (!audioContextInitialized || !audioContext) return;
+                
+                stopCurrentSound(id);
+                
+                const ctx = audioContext;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.frequency.value = 800;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(globalVolume * 0.8, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.3);
+                
+                if (timers[id]) {
+                    timers[id].currentOscillators.push(osc);
+                }
+            } catch (e) {
+                console.log('Beep error:', e);
+            }
+        }
+
+        // Создаём первый таймер при загрузке
+        window.addEventListener('load', () => {
+            addTimer();
+        });
+    </script>
+</body>
+</html>
